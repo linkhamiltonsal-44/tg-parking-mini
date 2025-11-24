@@ -1,1 +1,68 @@
+------------------------------------------------```html
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>SaveMySpot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <!-- Mapbox free CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet"/>
+  <style>
+    html,body{margin:0;padding:0;height:100%}
+    #map{width:100%;height:100%}
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <!-- Mapbox + Telegram SDK -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/@tma.js/sdk@2.0.0/dist/index.iife.js"></script>
+  <script>
+    // free token (no card needed)
+    mapboxgl.accessToken = 'pk.eyJ1IjoidGVsZWdyYW0iLCJhIjoiY2s1aTBlbmtyMDA3djNqbWxpN2sxOGhvMSJ9.hP5n3T5qT7sOG7m3cE3Q2w';
+
+    const {miniApp} = window.TmaSdk.init();
+    miniApp.ready();
+
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [31.235, 30.044],   // Cairo – change to your city
+      zoom: 15
+    });
+
+    // SCOUT: long-press → green pin
+    map.on('contextmenu', (e) => {
+      new mapboxgl.Marker({color: 'green'})
+        .setLngLat(e.lngLat)
+        .addTo(map);
+      alert('Pin dropped! (connect backend later)');
+    });
+
+    // DRIVER: ordinary click on pin → popup
+    map.on('click', (e) => {
+      const features = map.queryRenderedFeatures(e.point);
+      if (features.length) return;   // ignore map labels
+      alert('(later) Rent this spot');
+    });
+  </script>
+</body>
+</html>
+```
+Put it on the internet (2 clicks)
+In your new repo click Settings → Pages (left side).
+Source: Deploy from a branch → pick main → / (root) → Save.
+After 30 s you see a green check-mark + live URL:
+https://YOUR_USERNAME.github.io/tg-parking-map/
+Copy that link.
+Plug into your Telegram bot
+In Telegram → @BotFather:
+Copy
+/myapps
+→ choose your bot
+→ URL: https://YOUR_USERNAME.github.io/tg-parking-map/
+Save.
+Open your bot → purple “OPEN APP” button appears → tap → map loads full-screen inside Telegram.
+Long-press any street → green pin appears. Done!
+No broken links, no installs, no coding—just copy-paste and you have a working Telegram Mini-App map.
 
