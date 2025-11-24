@@ -1,48 +1,40 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="utf-8">
   <title>SaveMySpot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-  <!-- Mapbox free CSS -->
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet"/>
-  <style>
-    html,body{margin:0;padding:0;height:100%}
-    #map{width:100%;height:100%}
-  </style>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Leaflet CSS/JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9/dist/leaflet.css"/>
+  <style>html,body{margin:0;padding:0;height:100%}#map{width:100%;height:100%}</style>
 </head>
 <body>
   <div id="map"></div>
-  <!-- Mapbox + Telegram SDK -->
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
-  <script src="https://unpkg.com/@tma.js/sdk@2.0.0/dist/index.iife.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.9/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@tma.js/sdk@1/dist/index.iife.min.js"></script>
   <script>
-    // free token (no card needed)
-    mapboxgl.accessToken = 'pk.eyJ1IjoidGVsZWdyYW0iLCJhIjoiY2s1aTBlbmtyMDA3djNqbWxpN2sxOGhvMSJ9.hP5n3T5qT7sOG7m3cE3Q2w';
+    window.TmaSdk.init().miniApp.ready();
 
-    const {miniApp} = window.TmaSdk.init();
-    miniApp.ready();
+    const map = L.map('map').setView([30.044, 31.235], 15); // Cairo – change to your city
 
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: [31.235, 30.044],   // Cairo – change to your city
-      zoom: 15
+    // free tile layer (no token)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // SCOUT: right-click (long-press on phone) → drop pin
+    map.on('contextmenu', e => {
+      L.marker(e.latlng, {color: 'green'}).addTo(map);
+      alert('Pin dropped!');
     });
 
-    // SCOUT: long-press → green pin
-    map.on('contextmenu', (e) => {
-      new mapboxgl.Marker({color: 'green'})
-        .setLngLat(e.lngLat)
-        .addTo(map);
-      alert('Pin dropped! (connect backend later)');
-    });
-
-    // DRIVER: ordinary click on pin → popup
-    map.on('click', (e) => {
-      const features = map.queryRenderedFeatures(e.point);
-      if (features.length) return;   // ignore map labels
-      alert('(later) Rent this spot');
+    // DRIVER: left-click → rent pop-up
+    map.on('click', e => {
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent('<button onclick="alert(\'Rent logic here\')">Rent 2 h</button>')
+        .openOn(map);
     });
   </script>
 </body>
