@@ -17,32 +17,32 @@
 
   <script src="https://unpkg.com/leaflet@1.9/dist/leaflet.js"></script>
   <script>
-    /* 1. basic map */
-    const map = L.map('map').setView([33.895, 35.511], 15);
+    /* 1. basic map (Beirut default) */
+    const map = L.map('map').setView([35.511, 33.895], 15); // [lng, lat]  ←  fixed order
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
     /* 2. load existing pins */
     fetch('pins.json').then(r => r.json()).then(arr =>
-      arr.forEach(p => L.marker([p.lat, p.lng], {color: 'green'}).addTo(map)));
+      arr.forEach(p => L.marker([p.lng, p.lat], {color: 'green'}).addTo(map)));
 
     /* 3. scout: long-press → drop pin */
     map.on('contextmenu', e => {
       const lat = e.latlng.lat, lng = e.latlng.lng;
-      L.marker([lat, lng], {color: 'green'}).addTo(map);
+      L.marker([lng, lat], {color: 'green'}).addTo(map);   // Leaflet wants [lng, lat]
       window.open(`https://t.me/savemyspotmainbot?start=${lat},${lng}`, '_blank');
       alert('Pin dropped – finish inside the bot chat!');
     });
 
-    /* 4. general GPS unlock: button → native prompt → centre map */
+    /* 4. GPS button → centre on real location */
     document.getElementById('locBtn').addEventListener('click', () => {
       navigator.geolocation.getCurrentPosition(
         pos => {
-          const {latitude, longitude} = pos.coords;
-          map.setView([latitude, longitude], 16);
-          L.marker([latitude, longitude], {color: 'blue'}).addTo(map)
-            .bindPopup('You are here').openPopup();
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          map.setView([lng, lat], 16);                     // lng first
+          L.marker([lng, lat], {color: 'blue'}).addTo(map).bindPopup('You are here').openPopup();
           document.getElementById('locBtn').style.display = 'none';
         },
         err => alert('Please allow location in your phone settings, then tap again.'),
