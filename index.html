@@ -18,7 +18,7 @@
   <script src="https://unpkg.com/leaflet@1.9/dist/leaflet.js"></script>
   <script>
     /* 1. basic map (Beirut default) */
-    const map = L.map('map').setView([35.511, 33.895], 15); // [lng, lat]  ←  fixed order
+    const map = L.map('map').setView([35.511, 33.895], 15);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
@@ -31,7 +31,7 @@
     /* 3. scout: long-press → drop pin */
     map.on('contextmenu', e => {
       const lat = e.latlng.lat, lng = e.latlng.lng;
-      L.marker([lng, lat], {color: 'green'}).addTo(map);   // Leaflet wants [lng, lat]
+      L.marker([lng, lat], {color: 'green'}).addTo(map);
       window.open(`https://t.me/savemyspotmainbot?start=${lat},${lng}`, '_blank');
       alert('Pin dropped – finish inside the bot chat!');
     });
@@ -41,13 +41,24 @@
       navigator.geolocation.getCurrentPosition(
         pos => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          map.setView([lng, lat], 16);                     // lng first
+          map.setView([lng, lat], 16);
           L.marker([lng, lat], {color: 'blue'}).addTo(map).bindPopup('You are here').openPopup();
           document.getElementById('locBtn').style.display = 'none';
         },
         err => alert('Please allow location in your phone settings, then tap again.'),
         {enableHighAccuracy: true}
       );
+    });
+
+    /* 5. DRIVER: click any green pin → PAY 20 Stars */
+    map.on('click', e => {
+      // only react if we clicked a marker (green pin)
+      const marker = e.originalEvent.target.closest('.leaflet-marker-icon');
+      if (!marker) return;
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(`<b>Spot ready</b><br><a href="https://t.me/\(BEEtUVjOKVH5BAAATCVL1nNAsX8" target="_blank">Rent 2 h – 20 ⭐</a>`)
+        .openOn(map);
     });
   </script>
 </body>
