@@ -24,11 +24,11 @@
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    /* 2. load existing pins */
+    /* 2. load existing pins (from pins.json in same repo) */
     fetch('pins.json').then(r => r.json()).then(arr =>
       arr.forEach(p => L.marker([p.lng, p.lat], {color: 'green'}).addTo(map)));
 
-    /* 3. scout: long-press → drop pin */
+    /* 3. scout: long-press → drop pin + open bot chat */
     map.on('contextmenu', e => {
       const lat = e.latlng.lat, lng = e.latlng.lng;
       L.marker([lng, lat], {color: 'green'}).addTo(map);
