@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>SaveMySpot – Live Map</title>
+  <title>SaveMySpot – Street View</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1/dist/leaflet.css"/>
   <style>
@@ -15,23 +15,32 @@
 
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1/dist/leaflet.js"></script>
   <script>
-    /* 1. start at world level → tiles always visible */
-    const map = L.map('map').setView([20, 0], 2);
+    /* 1. start wide (so tiles always show) */
+    const map = L.map('map').setView([35.511, 33.895], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    /* 2. auto GPS (silent fail → stay on world) */
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        map.setView([lng, lat], 16);
-        L.marker([lng, lat], {color: 'blue'}).addTo(map).bindPopup('You are here').openPopup();
-      },
-      () => console.log('GPS denied – staying on world view'),
-      {enableHighAccuracy: true, timeout: 5000}
-    );
+    /* 2. FORCE permission prompt + zoom to street (19 = house level) */
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          map.setView([lng, lat], 19);                // 19 = street-level tiles
+          L.marker([lng, lat], {color: 'blue'}).addTo(map)
+            .bindPopup('You are here').openPopup();
+        },
+        err => {
+          alert('Location denied – using city centre');
+          map.setView([35.511, 33.895], 15);
+        },
+        {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+      );
+    } else {
+      alert('Geolocation not supported – using city centre');
+      map.setView([35.511, 33.895], 15);
+    }
 
     /* 3. load existing pins */
     fetch('pins.json').then(r => r.json()).then(arr =>
